@@ -1,9 +1,13 @@
 package client;
 
 import dao.CustomerDAO;
+import dao.EmployeeDAO;
 import entities.Customer;
+import entities.Employee;
 import exceptions.CustomerNotFound;
+import exceptions.EmployeeNotFound;
 import services.CustomerService;
+import services.EmployeeService;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -16,18 +20,24 @@ public class SalesManagement {
     // Fields
 
     private CustomerDAO customerDAO;
+    private EmployeeDAO employeeDAO;
     private CustomerForm customerForm;
+    private EmployeeForm employeeForm;
     private static Scanner sc;
     private CustomerService customerService;
+    private EmployeeService employeeService;
 
     // Constructors
 
     public SalesManagement() throws SQLException {
         sc = new Scanner(System.in);
         customerForm = new CustomerForm(sc);
+        employeeForm = new EmployeeForm(sc);
         Connection conn = getConnection();
         customerDAO = new CustomerDAO(conn);
+        employeeDAO = new EmployeeDAO(conn);
         customerService = new CustomerService(customerDAO);
+        employeeService = new EmployeeService(employeeDAO);
     }
 
     // Methods
@@ -48,7 +58,11 @@ public class SalesManagement {
         System.out.println("2. Add new customer");
         System.out.println("3. Change customer information");
         System.out.println("4. Remove a customer");
-        System.out.println("5. Quit");
+        System.out.println("5. Get all employees");
+        System.out.println("6. Add new employee");
+        System.out.println("7. Change employee information");
+        System.out.println("8. Remove a employee");
+        System.out.println("9. Quit");
         System.out.print("Enter your choice: ");
     }
 
@@ -93,6 +107,8 @@ public class SalesManagement {
         }
     }
 
+    // 4. Remove A Customer
+
     private void deleteCustomer() throws SQLException {
         int id = customerForm.getCustomerId();
 
@@ -102,6 +118,61 @@ public class SalesManagement {
             System.out.println("Delete customer Successfully!");
         } catch (CustomerNotFound cnf) {
             System.out.println(cnf.getMessage());
+        }
+    }
+
+    // 5. Get ALl Employess
+
+    private void displayAllEmployee() throws SQLException, EmployeeNotFound {
+        ArrayList<Employee> employees = employeeDAO.selectAll();
+
+        if (employees == null || employees.isEmpty()) {
+            throw new EmployeeNotFound("The list is empty. Cannot found any Employees");
+        }
+
+        for (Employee e : employees) {
+            System.out.println(e.toString());
+        }
+    }
+
+    // 6. Add New Employee
+
+    private void addNewEmployee() throws SQLException {
+        Employee employee = employeeForm.getEmployee();
+
+        if (employeeDAO.insert(employee)) {
+            System.out.println("Add new employee Successfully!");
+        } else {
+            System.out.println("Add new employee Unsuccessfully!");
+        }
+    }
+
+    // 7. Update Employee By ID
+
+    private void updateEmployee() throws SQLException {
+        int id = employeeForm.getEmployeeId();
+
+        try {
+            employeeService.checkEmployeeExist(id);
+            Employee employee = employeeForm.getEmployee();
+            employeeService.handleUpdateEmployee(id, employee);
+            System.out.println("Updated Employee Successfully!");
+        } catch (EmployeeNotFound enf) {
+            System.out.println("Error: " + enf.getMessage());
+        }
+    }
+
+    // 8. Delete Employee By ID
+
+    private void deleteEmployee() throws SQLException {
+        int id = employeeForm.getEmployeeId();
+
+        try {
+            employeeService.checkEmployeeExist(id);
+            employeeService.handleDeleteEmployee(id);
+            System.out.println("Deleted Employee Successfully!");
+        } catch (EmployeeNotFound enf) {
+            System.out.println("Error: " + enf.getMessage());
         }
     }
 
@@ -139,16 +210,32 @@ public class SalesManagement {
                         break;
 
                     case 5:
+                        sm.displayAllEmployee();
+                        break;
+
+                    case 6:
+                        sm.addNewEmployee();
+                        break;
+
+                    case 7:
+                        sm.updateEmployee();
+                        break;
+
+                    case 8:
+                        sm.deleteEmployee();
+                        break;
+
+                    case 9:
                         break;
 
                     default:
                         System.out.println("\nInvalid choice");
                         break;
                 }
-            } catch (SQLException | CustomerNotFound e) {
+            } catch (SQLException | CustomerNotFound | EmployeeNotFound e) {
                 System.out.println(e.getMessage());
             }
-        } while (choice != 5);
+        } while (choice != 9);
 
         System.out.println("\n======END PROGRAM======");
     }

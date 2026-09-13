@@ -25,5 +25,6 @@ public class ScannerUtils {
         if (!input.isEmpty()) return Integer.parseInt(input);
 
         throw new InvalidFields("Value cannot be empty");
+        
     }
 }

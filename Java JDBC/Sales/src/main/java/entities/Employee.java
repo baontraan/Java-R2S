@@ -8,7 +8,7 @@ public class Employee {
     private String lastName;
     private String firstName;
     private String birthdate;
-    private int supervisor;
+    private Integer supervisor;
 
     // Getter & Setter
 
@@ -44,16 +44,16 @@ public class Employee {
         this.birthdate = birthdate;
     }
 
-    public int getSupervisor() {
+    public Integer getSupervisor() {
         return supervisor;
     }
 
-    public void setSupervisor(int supervisor) {
+    public void setSupervisor(Integer supervisor) {
         this.supervisor = supervisor;
     }
 
     // Methods
-    
+
     @Override
     public String toString() {
         return String.format("Employee {Id: %-3d | Last Name: %-15s | First Name: %-15s | Birthdate: %s | Supervisor: %d}",
